@@ -28,5 +28,6 @@ module.exports = {
     'arrow-parens': 'off',
     'comma-dangle': 'off',
     'no-multi-spaces': 'off',
+    'no-useless-constructor': 'off',
   }
 }
