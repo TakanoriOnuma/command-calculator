@@ -12,12 +12,16 @@ div
         button(@click="onSubtractButtonClick") -
         button(@click="onMultiplyButtonClick") *
         button(@click="onDivideButtonClick") /
-      p value: {{ $data.valueStore.getValue() }}
     .container__block
       p コマンド一覧
+      div
+        button(@click="undoButtonClick", :disabled="$data.commandIndex >= $data.commands.length") undo
+        button(@click="redoButtonClick", :disabled="$data.commandIndex <= 0") redo
+      p now value: {{ $data.valueStore.getValue() }}
       ul.commands
-        template(v-for="command in $data.commands")
-          li.commands__item {{ command.showInfo() }}
+        template(v-for="command, index in $data.commands")
+          li.commands__item(:class="{ '-selected': index === $data.commandIndex }")
+            span {{ command.showInfo() }}
 </template>
 
 <script lang="ts">
@@ -26,26 +30,43 @@ import Vue from 'vue';
 import ValueStore from '~/modules/ValueStore';
 import { ICommand, AddCommand, SubtractCommand, MultiplyCommand, DivideCommand } from '~/modules/Commands';
 
-interface IData {
-  inputValue: string;
-  valueStore: ValueStore;
-  commands: Array<ICommand>;
-}
-
 export default Vue.extend({
   components: {
   },
-  data(): IData {
+  data() {
     return {
+      /** 入力テキスト */
       inputValue: '',
+      /** データストア */
       valueStore: new ValueStore(),
-      commands: [],
+      /** コマンドリスト */
+      commands: [] as Array<ICommand>,
+      /** 実行したコマンドのindex値 */
+      commandIndex: 0,
     };
   },
   methods: {
     addCommandAndExecute(command: ICommand) {
-      this.commands.unshift(command);
+      this.commands = [
+        command,
+        ...this.commands.slice(this.commandIndex),
+      ];
+      this.commandIndex = 0;
       command.execute();
+    },
+    undoButtonClick() {
+      if (this.commandIndex >= this.commands.length) {
+        return;
+      }
+      this.commands[this.commandIndex].undo();
+      this.commandIndex += 1;
+    },
+    redoButtonClick() {
+      if (this.commandIndex <= 0) {
+        return;
+      }
+      this.commandIndex -= 1;
+      this.commands[this.commandIndex].execute();
     },
     onAddButtonClick() {
       this.addCommandAndExecute(new AddCommand(this.valueStore, Number(this.inputValue)));
@@ -78,8 +99,28 @@ export default Vue.extend({
 }
 
 .commands {
+  padding: 0 0 0 20px;
+
   &__item {
+    position: relative;
+    padding: 5px 0;
+    list-style: none;
     white-space: pre;
+
+    &.-selected {
+      &::before {
+        position: absolute;
+        top: 4px;
+        left: -20px;
+        font-size: 20px;
+        color: #f00;
+        content: '>';
+      }
+    }
+
+    & + & {
+      border-top: solid 1px #000;
+    }
   }
 }
 </style>
