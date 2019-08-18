@@ -1,6 +1,10 @@
-# calculator
+# Command Calculator
 
-> My superb Nuxt.js project
+[![CircleCI](https://circleci.com/gh/TakanoriOnuma/command-calculator.svg?style=svg)](https://circleci.com/gh/TakanoriOnuma/command-calculator)  
+
+## 環境
++ Node: 10.9以上
++ yarn: 1.16以上
 
 ## Build Setup
 
