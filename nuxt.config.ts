@@ -1,6 +1,13 @@
 import NuxtConfiguration from '@nuxt/config';
 
+const routerBase = process.env.DEPLOY_ENV === 'GH_PAGES' ? {
+  router: {
+    base: '/command-calculator/'
+  }
+} : {};
+
 const nuxtConfig: NuxtConfiguration = {
+  ...routerBase,
   mode: 'spa',
   /*
   ** Headers of the page
